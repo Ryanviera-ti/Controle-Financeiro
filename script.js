@@ -29,8 +29,8 @@ const li = document.createElement('li')
 li.classList.add( CSSClass)
     li.innerHTML = `
     ${transaction.name} 
-    <span>${operator} R$ ${Math.abs(amountWithoutOperator)}</span>
-    <button class="delete-btn" onClick="removeTransaction(${transaction.id}">
+    <span>${operator} R$ ${amountWithoutOperator}</span>
+    <button class="delete-btn" onClick="removeTransaction(${transaction.id})">
     x
     </button>
     `
@@ -39,19 +39,29 @@ li.classList.add( CSSClass)
 
 }
 
-const updateBalancevalues = () => {
-    const transactionAmounts = transactions.map(transaction => transaction.amount)
-    const total = transactionAmounts
-    .reduce ((accumulator, transaction) => accumulator + transaction, 0)
-    .toFixed(2)
-    const income = transactionAmounts
-    .filter(value => value > 0)
-    .reduce((accumulator, value ) => accumulator + value, 0)
-    .toFixed(2)
-    const expense = Math.abs ( transactionAmounts
+
+const getExpenses = transactionAmounts => Math.abs ( transactionAmounts
     .filter(value => value < 0)
     .reduce((accumulator, value) => accumulator + value, 0))
     .toFixed(2)
+
+    const getIncome = transactionAmounts =>  transactionAmounts
+    .filter(value => value > 0)
+    .reduce((accumulator, value) => accumulator + value, 0)
+    .toFixed(2)
+
+
+    const getTotal = transactionAmounts => transactionAmounts
+    .reduce ((accumulator, transaction) => accumulator + transaction, 0)
+    .toFixed(2)
+
+
+
+const updateBalancevalues = () => {
+    const transactionAmounts = transactions.map(( {amount})=> amount)
+    const total = getTotal(transactionAmounts)
+    const income = getIncome(transactionAmounts)
+    const expense = getExpenses(transactionAmounts) 
 
 
     balanceDisplay.textContent = `R$ ${total}`
@@ -61,6 +71,7 @@ const updateBalancevalues = () => {
 
 
  const init = () => {
+  transactionsul.innerHTML = ''
   transactions.forEach(addTransactionIntoDOM)
     updateBalancevalues()
  }
@@ -76,22 +87,22 @@ const updateLocalStorage = () => {
 
 const generateID = () => Math.round(Math.random () * 1000)
  
-const addToTransactionsArray = (transactionName, transactionAmount) =>{
+const addToTransactionsArray = (transactionName, transactionAmount) => {
     transactions.push( {
         id: generateID(),
          name: transactionName,
          amount: Number(transactionAmount)
-       }
-    )
+       })
+}
 
-const cleaninputs = () => {
+const cleanInputs = () => {
     inputTransactionName.value = ''
     inputTransactionAmount.value = ''
 }
 
 
 
-const handleFormSubmit = event => 
+const handleFormSubmit = event => {
     event.preventDefault()
 
 const transactionName = inputTransactionName.value.trim()
@@ -107,7 +118,7 @@ const transactionAmount = inputTransactionAmount.value.trim()
      addToTransactionsArray(transactionName , transactionAmount)
         init()
         updateLocalStorage()
-        cleaninputs()
+        cleanInputs()
     
     
 }
